@@ -181,6 +181,9 @@ class MicroWebSrv :
         self.AcceptWebSocketCallback    = None
         self.LetCacheStaticContentLevel = 2
 
+        self.TimeoutCallback = None
+        self.SocketTimeout = None
+
         self._routeHandlers = []
         routeHandlers += self._docoratedRouteHandlers
         for route, method, func in routeHandlers :
@@ -212,6 +215,8 @@ class MicroWebSrv :
             except Exception as ex :
                 if ex.args and ex.args[0] == 113 :
                     break
+                elif ex.args and ex.args[0] == 110 and self.TimeoutCallback:
+                    self.TimeoutCallback()
                 continue
             self._client(self, client, cliAddr)
         self._started = False
@@ -226,6 +231,8 @@ class MicroWebSrv :
             self._server.setsockopt( socket.SOL_SOCKET,
                                      socket.SO_REUSEADDR,
                                      1 )
+            if self.SocketTimeout:
+                self._server.settimeout(self.SocketTimeout)
             self._server.bind(self._srvAddr)
             self._server.listen(16)
             if threaded :
@@ -257,6 +264,16 @@ class MicroWebSrv :
             if filename.endswith(ext) :
                 return self._mimeTypes[ext]
         return None
+    
+    # ----------------------------------------------------------------------------
+
+    def SetTimeoutCallback(self, callback) :
+        self.TickCallback = callback
+ 
+    # ----------------------------------------------------------------------------
+
+    def SetSocketTimeout(self, timeout) :
+        self.SocketTimeout = timeout
 
     # ----------------------------------------------------------------------------
     
