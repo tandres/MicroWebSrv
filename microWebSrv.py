@@ -268,7 +268,7 @@ class MicroWebSrv :
     # ----------------------------------------------------------------------------
 
     def SetTimeoutCallback(self, callback) :
-        self.TickCallback = callback
+        self.TimeoutCallback = callback
  
     # ----------------------------------------------------------------------------
 
